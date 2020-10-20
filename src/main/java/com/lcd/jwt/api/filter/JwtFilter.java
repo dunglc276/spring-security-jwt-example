@@ -1,11 +1,15 @@
 package com.lcd.jwt.api.filter;
 
+import com.lcd.jwt.api.exception.InvalidGrantException;
 import com.lcd.jwt.api.service.CustomUserDetailsService;
 import com.lcd.jwt.api.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -38,15 +42,18 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
       UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
       if (jwtUtil.validateToken(token, userDetails)) {
+
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
       }
+
     }
     filterChain.doFilter(request, response);
   }

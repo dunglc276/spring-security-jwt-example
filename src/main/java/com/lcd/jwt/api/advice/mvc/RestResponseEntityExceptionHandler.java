@@ -1,6 +1,7 @@
 package com.lcd.jwt.api.advice.mvc;
 
 import com.lcd.jwt.api.dto.BadRequestDTO;
+import com.lcd.jwt.api.exception.InvalidGrantException;
 import com.lcd.jwt.api.exception.SignupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -76,5 +79,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         .build();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestDTO);
+  }
+
+  @ExceptionHandler(value = InvalidGrantException.class)
+  ResponseEntity<?> handleInvalidGrantException(InvalidGrantException exception, WebRequest request) {
+    LOGGER.warn("Request '{}' responsed status: '{}'", request.getDescription(false), HttpStatus.BAD_REQUEST);
+
+    Map<String, String> bodyResp = new HashMap<>();
+    bodyResp.put(InvalidGrantException.ERROR, InvalidGrantException.INVALID_GRANT);
+    bodyResp.put(InvalidGrantException.DESCRIPTION, exception.getError() == null ? "Bad credentials" : exception.getError());
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(bodyResp);
   }
 }

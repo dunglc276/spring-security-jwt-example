@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -61,8 +60,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         .authorizeRequests()
         .antMatchers("/api/auth/token", "/api/signup")
-        .permitAll()
-        .antMatchers(HttpMethod.OPTIONS, "/**")
         .permitAll()
         .anyRequest()
         .authenticated()
