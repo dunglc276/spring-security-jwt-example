@@ -1,8 +1,10 @@
 package com.lcd.jwt.api.util;
 
+import com.lcd.jwt.api.exception.InvalidGrantException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +33,19 @@ public class JwtUtil {
     return claimsResolver.apply(claims);
   }
   private Claims extractAllClaims(String token) {
-    return Jwts.parser().setSigningKey(encodedString).parseClaimsJws(token).getBody();
+
+    try {
+      return Jwts.parser()
+          .setSigningKey(encodedString)
+          .parseClaimsJws(token)
+          .getBody();
+
+    } catch (Exception e) {
+      throw  InvalidGrantException.builder()
+          .error(InvalidGrantException.INVALID_TOKEN)
+          .errorDescription(InvalidGrantException.TOKEN_ERROR)
+          .build();
+    }
   }
 
   private Boolean isTokenExpired(String token) {

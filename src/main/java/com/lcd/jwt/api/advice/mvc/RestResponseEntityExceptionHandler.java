@@ -83,11 +83,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
   @ExceptionHandler(value = InvalidGrantException.class)
   ResponseEntity<?> handleInvalidGrantException(InvalidGrantException exception, WebRequest request) {
-    LOGGER.warn("Request '{}' responsed status: '{}'", request.getDescription(false), HttpStatus.BAD_REQUEST);
+    LOGGER.warn("Request '{}' responsed status: '{}'", request.getDescription(false), HttpStatus.UNAUTHORIZED);
 
     Map<String, String> bodyResp = new HashMap<>();
-    bodyResp.put(InvalidGrantException.ERROR, InvalidGrantException.INVALID_GRANT);
-    bodyResp.put(InvalidGrantException.DESCRIPTION, exception.getError() == null ? "Bad credentials" : exception.getError());
+    bodyResp.put(InvalidGrantException.TIME_ERROR, OffsetDateTime.now().toString());
+    bodyResp.put(InvalidGrantException.STATUS, String.format("%s", HttpStatus.UNAUTHORIZED.value()));
+    bodyResp.put(InvalidGrantException.ERROR, exception.getError());
+    bodyResp.put(InvalidGrantException.DESCRIPTION, exception.getErrorDescription() == null ? "" : exception.getErrorDescription());
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(bodyResp);
   }

@@ -23,13 +23,15 @@ public class ResourceOwnerTokenGranter {
     try {
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(ei.getUsername(), ei.getPassword()));
-      }
-    catch (AuthenticationException ae) {
-     throw InvalidGrantException.builder()
-         .error(ae.getMessage())
-         .build();
+
+    } catch (AuthenticationException authException) {
+
+      throw InvalidGrantException.builder()
+          .error(InvalidGrantException.INVALID_GRANT)
+          .errorDescription(authException.getMessage())
+          .build();
     }
 
-  return jwtUtil.generateToken(ei.getUsername());
+    return jwtUtil.generateToken(ei.getUsername());
   }
 }
