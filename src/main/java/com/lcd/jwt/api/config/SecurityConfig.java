@@ -1,5 +1,6 @@
 package com.lcd.jwt.api.config;
 
+import com.lcd.jwt.api.advice.mvc.RestAuthenticationEntryPoint;
 import com.lcd.jwt.api.filter.JwtFilter;
 import com.lcd.jwt.api.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Autowired
+  private RestAuthenticationEntryPoint authenticationEntryPoint;
 
   @Autowired
   private JwtFilter jwtFilter;
@@ -64,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .authenticated()
         .and()
         .exceptionHandling()
+        .authenticationEntryPoint(authenticationEntryPoint)
         .and()
         .httpBasic()
         .disable()

@@ -16,8 +16,6 @@ public class InvalidGrantException extends RuntimeException{
   public static final String TIME_ERROR = "timestamp";
   public static final String INVALID_GRANT = "invalid_grant";
   public static final String INVALID_TOKEN = "invalid_token";
-  public static final String TOKEN_ERROR = "Unable-to-validate-the-access-token";
-
 
   private String error;
   private String errorDescription;

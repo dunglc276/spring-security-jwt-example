@@ -1,5 +1,6 @@
 package com.lcd.jwt.api.filter;
 
+import com.lcd.jwt.api.exception.InvalidGrantException;
 import com.lcd.jwt.api.service.CustomUserDetailsService;
 import com.lcd.jwt.api.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -18,6 +20,9 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
+  @Autowired
+  private HandlerExceptionResolver handlerExceptionResolver;
 
   @Autowired
   private JwtUtil jwtUtil;
@@ -32,24 +37,34 @@ public class JwtFilter extends OncePerRequestFilter {
     String token = null;
     String username = null;
 
-    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-      token = authorizationHeader.substring(7);
-      username = jwtUtil.extractUsername(token);
-    }
-
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-      UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-
-      if (jwtUtil.validateToken(token, userDetails)) {
-
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+    try {
+      if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        token = authorizationHeader.substring(7);
+        username = jwtUtil.extractUsername(token);
       }
 
+      if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+        if (jwtUtil.validateToken(token, userDetails)) {
+
+          UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+              new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+          usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        }
+
+      }
+    } catch (Exception e) {
+      InvalidGrantException invalidGrantException = InvalidGrantException.builder()
+        .error(InvalidGrantException.INVALID_TOKEN)
+        .errorDescription(e.getMessage())
+        .build();
+
+      handlerExceptionResolver.resolveException(request, response, null, invalidGrantException);
+      return;
     }
     filterChain.doFilter(request, response);
   }

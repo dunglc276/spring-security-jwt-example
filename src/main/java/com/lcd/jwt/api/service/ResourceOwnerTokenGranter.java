@@ -1,12 +1,10 @@
 package com.lcd.jwt.api.service;
 
 import com.lcd.jwt.api.ei.AuthUserEI;
-import com.lcd.jwt.api.exception.InvalidGrantException;
 import com.lcd.jwt.api.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,17 +18,8 @@ public class ResourceOwnerTokenGranter {
 
   public Object login(AuthUserEI ei) {
 
-    try {
-      authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(ei.getUsername(), ei.getPassword()));
-
-    } catch (AuthenticationException authException) {
-
-      throw InvalidGrantException.builder()
-          .error(InvalidGrantException.INVALID_GRANT)
-          .errorDescription(authException.getMessage())
-          .build();
-    }
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(ei.getUsername(), ei.getPassword()));
 
     return jwtUtil.generateToken(ei.getUsername());
   }
