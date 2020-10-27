@@ -1,7 +1,6 @@
 package com.lcd.jwt.api.service;
 
 import com.lcd.jwt.api.entity.User;
-import com.lcd.jwt.api.exception.InvalidGrantException;
 import com.lcd.jwt.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
