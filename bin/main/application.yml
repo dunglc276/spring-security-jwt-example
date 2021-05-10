@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${SPRING_DATASOURCE_ADDRESS}:${SPRING_DATASOURCE_PORT}/lcd
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: demo
+  flyway:
+    enabled: true
+    schemas: demo
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+server:
+  port: ${SERVER_PORT}
